@@ -1,0 +1,61 @@
+{% extends "_base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card text-center">
+            <div class="card-header">
+                <h2>Coconut Health Analysis</h2>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Start a New Analysis</h5>
+                <p class="card-text" id="status-text">Click below to begin. We'll ask for your location to provide more accurate advice.</p>
+                
+                <form id="upload-form" action="{{ url_for('predict') }}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" id="latitude" name="latitude">
+                    <input type="hidden" id="longitude" name="longitude">
+                    
+                    <label for="file-input" class="btn btn-lg btn-success w-100" id="analyze-button">
+                        <span id="button-text">Use Camera or Upload Photo</span>
+                    </label>
+                    <input type="file" id="file-input" name="file" accept="image/*" class="d-none" required>
+                </form>
+            </div>
+            <div id="loading-spinner" class="text-center my-3 d-none">
+                 <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Getting location & analyzing image...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const analyzeButton = document.getElementById('analyze-button');
+    const fileInput = document.getElementById('file-input');
+    const statusText = document.getElementById('status-text');
+    const uploadForm = document.getElementById('upload-form');
+    const loadingSpinner = document.getElementById('loading-spinner');
+
+    analyzeButton.addEventListener('click', (event) => {
+        statusText.textContent = 'Getting your location...';
+        navigator.geolocation.getCurrentPosition(position => {
+            document.getElementById('latitude').value = position.coords.latitude;
+            document.getElementById('longitude').value = position.coords.longitude;
+            statusText.textContent = 'Location locked! Now select your photo.';
+        }, error => {
+            console.error("Geolocation error: ", error);
+            statusText.textContent = 'Could not get location. Using generic recommendations.';
+        });
+    });
+
+    fileInput.onchange = () => {
+        if (fileInput.files.length > 0) {
+            uploadForm.style.display = 'none';
+            loadingSpinner.classList.remove('d-none');
+            uploadForm.submit();
+        }
+    };
+</script>
+{% endblock %}

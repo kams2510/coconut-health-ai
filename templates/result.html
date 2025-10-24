@@ -1,0 +1,60 @@
+{% extends "_base.html" %}
+{% block title %}Analysis Result{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card text-center">
+            <div class="card-header">
+                <h2>Analysis Report</h2>
+            </div>
+
+            {% if detections %}
+                {% for detection in detections %}
+                    <div class="card-body">
+                        <h3 class="card-title">{{ detection.class_name.replace('_', ' ') | title }}</h3>
+                         
+                        <div class="alert alert-{{ 'danger' if detection.risk_score == 'High' else ('warning' if detection.risk_score == 'Medium' else 'success') }}" role="alert">
+                           <h4 class="alert-heading">Risk Score: {{ detection.risk_score }}</h4>
+                        </div>
+                        
+                        {% if detection.weather %}
+                        <div class="alert alert-info py-2">
+                            <small>Weather at time of analysis: {{ detection.weather.temp }}°C, {{ detection.weather.humidity }}% Humidity</small>
+                        </div>
+                        {% endif %}
+
+                        <div class="card mt-4">
+                            <div class="card-header bg-success text-white">
+                                Recommended Action
+                            </div>
+                            <div class="card-body text-start">
+                                <p>{{ detection.recommendation }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="card-body">
+                    <div class="alert alert-success" role="alert">
+                       <h4 class="alert-heading">Palm Appears Healthy</h4>
+                       <p>No diseases were detected in the image provided. Continue regular monitoring.</p>
+                   </div>
+                </div>
+            {% endif %}
+
+            {% if error %}
+            <div class="card-body">
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">An Error Occurred</h4>
+                    <p>{{ error }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card-footer d-grid gap-2 d-md-flex justify-content-md-end">
+                  <a href="{{ url_for('home') }}" class="btn btn-success">Analyze Another Photo</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
